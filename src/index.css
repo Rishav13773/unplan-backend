@@ -1,3 +1,41 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* src/App.css */
+.App {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.add-category,
+.add-subcategory,
+.add-service {
+  margin-bottom: 20px;
+}
+
+.add-category input,
+.add-subcategory input,
+.add-service input {
+  margin-right: 10px;
+}
+
+.category,
+.subcategory {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.subcategory {
+  margin-left: 20px;
+}
+
+img {
+  max-width: 100px;
+  display: block;
+  margin-top: 10px;
+}

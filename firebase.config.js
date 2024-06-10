@@ -5,16 +5,15 @@ import { getStorage } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCJEp_DtzR9hod3mVMwz6b83uycBGOh5ZQ",
-  authDomain: "unplan-app-9dbf9.firebaseapp.com",
+  apiKey: "AIzaSyDVjfpyf7KleqmLF4UKRQDn-VN0V013ZYo",
+  authDomain: "spotify-clone-development.firebaseapp.com",
   databaseURL:
-    "https://unplan-app-9dbf9-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "unplan-app-9dbf9",
-  storageBucket: "unplan-app-9dbf9.appspot.com",
-  messagingSenderId: "625806273584",
-  appId: "1:625806273584:web:9cbeab00b02583426691f5",
+    "https://spotify-clone-development-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "spotify-clone-development",
+  storageBucket: "spotify-clone-development.appspot.com",
+  messagingSenderId: "317876986408",
+  appId: "1:317876986408:web:27b1f53dac80e4dd8e4b1d",
 };
 
 // Initialize Firebase

@@ -1,219 +1,165 @@
 // src/App.js
 import React, { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { ref, set, push, onValue } from "firebase/database";
 import {
-  createService,
-  fetchCategories,
-  addServiceToCategory,
-} from "./helper/createFunctions";
-import { storage } from "../firebase.config"; // Import storage from firebase.js
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import necessary functions
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+import { db, storage } from "../firebase.config";
 
-const App = () => {
-  const [serviceData, setServiceData] = useState({
-    categoryName: "",
-    imageUrl: "",
-    services: [
-      {
-        id: uuidv4(),
-        name: "",
-        description: "",
-        price: "",
-        sets: "",
-      },
-    ],
-  });
+function App() {
   const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [newSubCategory, setNewSubCategory] = useState("");
+  const [newService, setNewService] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [imageFile, setImageFile] = useState(null); // State to store the selected image file
-  const [isUploading, setIsUploading] = useState(false); // State to show upload status
+  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [categoryImage, setCategoryImage] = useState(null);
+  const [subCategoryImage, setSubCategoryImage] = useState(null);
 
   useEffect(() => {
-    const loadCategories = async () => {
-      const categories = await fetchCategories();
-      setCategories(categories);
-    };
-
-    loadCategories();
+    const categoriesRef = ref(db, "categories");
+    onValue(categoriesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setCategories(Object.entries(data));
+      }
+    });
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setServiceData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleServiceChange = (index, e) => {
-    const { name, value } = e.target;
-    const updatedServices = [...serviceData.services];
-    updatedServices[index][name] = value;
-    setServiceData((prevData) => ({
-      ...prevData,
-      services: updatedServices,
-    }));
-  };
-
-  const handleAddService = () => {
-    setServiceData((prevData) => ({
-      ...prevData,
-      services: [
-        ...prevData.services,
-        {
-          id: uuidv4(),
-          name: "",
-          description: "",
-          price: "",
-          sets: "",
-        },
-      ],
-    }));
-  };
-
-  const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleAddCategory = async () => {
+    const newCategoryRef = push(ref(db, "categories"));
+    const key = newCategoryRef.key;
     let imageUrl = "";
-    if (imageFile) {
-      setIsUploading(true);
-      const imageRef = ref(storage, `images/${imageFile.name}`);
-      await uploadBytes(imageRef, imageFile);
+    if (categoryImage) {
+      const imageRef = storageRef(storage, `categories/${key}`);
+      await uploadBytes(imageRef, categoryImage);
       imageUrl = await getDownloadURL(imageRef);
-      setServiceData((prevData) => ({
-        ...prevData,
-        imageUrl,
-      }));
-      setIsUploading(false);
     }
+    set(newCategoryRef, { name: newCategory, imageUrl });
+    setNewCategory("");
+    setCategoryImage(null);
+  };
 
-    const updatedServiceData = {
-      ...serviceData,
-      imageUrl: imageUrl || serviceData.imageUrl,
-    };
+  const handleAddSubCategory = async (categoryId) => {
+    const newSubCategoryRef = push(
+      ref(db, `categories/${categoryId}/subcategories`)
+    );
+    const key = newSubCategoryRef.key;
+    let imageUrl = "";
+    if (subCategoryImage) {
+      const imageRef = storageRef(storage, `subcategories/${key}`);
+      await uploadBytes(imageRef, subCategoryImage);
+      imageUrl = await getDownloadURL(imageRef);
+    }
+    set(newSubCategoryRef, { name: newSubCategory, imageUrl });
+    setNewSubCategory("");
+    setSubCategoryImage(null);
+  };
 
-    if (selectedCategory) {
-      // Add new services to the existing category
-      await addServiceToCategory(selectedCategory, updatedServiceData.services);
-    } else {
-      // Create a new category with services
-      const newServiceId = uuidv4();
-      const newServiceData = { ...updatedServiceData, id: newServiceId };
-      await createService(newServiceData);
+  const handleAddService = (categoryId, subCategoryId = null) => {
+    const serviceRef = subCategoryId
+      ? ref(
+          db,
+          `categories/${categoryId}/subcategories/${subCategoryId}/services`
+        )
+      : ref(db, `categories/${categoryId}/services`);
+    push(serviceRef, { name: newService });
+    setNewService("");
+  };
+
+  const handleFileChange = (e, setImage) => {
+    if (e.target.files[0]) {
+      setImage(e.target.files[0]);
     }
   };
 
   return (
     <div className="App">
-      <h1>Add Service</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Category Name:</label>
-          <select
-            value={selectedCategory}
-            onChange={(e) => {
-              const selectedValue = e.target.value;
-              setSelectedCategory(selectedValue);
-              if (selectedValue) {
-                const selectedCategoryData = categories.find(
-                  (category) => category.id === selectedValue
-                );
-                setServiceData((prevData) => ({
-                  ...prevData,
-                  categoryName: selectedCategoryData.categoryName,
-                  imageUrl: selectedCategoryData.imageUrl,
-                }));
-              } else {
-                setServiceData((prevData) => ({
-                  ...prevData,
-                  categoryName: "",
-                  imageUrl: "",
-                }));
-              }
-            }}
-          >
-            <option value="">Create a new category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.categoryName}
-              </option>
-            ))}
-          </select>
-        </div>
-        {!selectedCategory && (
-          <>
-            <div>
-              <label>New Category Name:</label>
+      <h1>Category Manager</h1>
+      <div className="add-category">
+        <input
+          type="text"
+          placeholder="Add new category"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+        />
+        <input
+          type="file"
+          onChange={(e) => handleFileChange(e, setCategoryImage)}
+        />
+        <button onClick={handleAddCategory}>Add Category</button>
+      </div>
+      <div className="categories">
+        {categories.map(([categoryId, category]) => (
+          <div key={categoryId} className="category">
+            <h2>{category.name}</h2>
+            {category.imageUrl && (
+              <img src={category.imageUrl} alt={category.name} />
+            )}
+            <div className="add-subcategory">
               <input
                 type="text"
-                name="categoryName"
-                value={serviceData.categoryName}
-                onChange={handleInputChange}
-                required
+                placeholder="Add new subcategory"
+                value={newSubCategory}
+                onChange={(e) => setNewSubCategory(e.target.value)}
               />
+              <input
+                type="file"
+                onChange={(e) => handleFileChange(e, setSubCategoryImage)}
+              />
+              <button onClick={() => handleAddSubCategory(categoryId)}>
+                Add Subcategory
+              </button>
             </div>
-            <div>
-              <label>Image URL:</label>
-              <input type="file" onChange={handleImageChange} required />
-              {isUploading && <p>Uploading image...</p>}
+            <div className="subcategories">
+              {category.subcategories &&
+                Object.entries(category.subcategories).map(
+                  ([subCategoryId, subCategory]) => (
+                    <div key={subCategoryId} className="subcategory">
+                      <h3>{subCategory.name}</h3>
+                      {subCategory.imageUrl && (
+                        <img
+                          src={subCategory.imageUrl}
+                          alt={subCategory.name}
+                        />
+                      )}
+                      <div className="add-service">
+                        <input
+                          type="text"
+                          placeholder="Add new service"
+                          value={newService}
+                          onChange={(e) => setNewService(e.target.value)}
+                        />
+                        <button
+                          onClick={() =>
+                            handleAddService(categoryId, subCategoryId)
+                          }
+                        >
+                          Add Service
+                        </button>
+                      </div>
+                    </div>
+                  )
+                )}
             </div>
-          </>
-        )}
-        {serviceData.services.map((service, index) => (
-          <div key={service.id}>
-            <h2>Service {index + 1}</h2>
-            <div>
-              <label>Service Name:</label>
+            <div className="add-service">
               <input
                 type="text"
-                name="name"
-                value={service.name}
-                onChange={(e) => handleServiceChange(index, e)}
-                required
+                placeholder="Add new service"
+                value={newService}
+                onChange={(e) => setNewService(e.target.value)}
               />
-            </div>
-            <div>
-              <label>Description:</label>
-              <textarea
-                name="description"
-                value={service.description}
-                onChange={(e) => handleServiceChange(index, e)}
-              />
-            </div>
-            <div>
-              <label>Price:</label>
-              <input
-                type="text"
-                name="price"
-                value={service.price}
-                onChange={(e) => handleServiceChange(index, e)}
-                required
-              />
-            </div>
-            <div>
-              <label>Sets:</label>
-              <input
-                type="text"
-                name="sets"
-                value={service.sets}
-                onChange={(e) => handleServiceChange(index, e)}
-              />
+              <button onClick={() => handleAddService(categoryId)}>
+                Add Service
+              </button>
             </div>
           </div>
         ))}
-        <button type="button" onClick={handleAddService}>
-          Add Another Service
-        </button>
-        <button type="submit">Add Service</button>
-      </form>
+      </div>
     </div>
   );
-};
+}
 
 export default App;
