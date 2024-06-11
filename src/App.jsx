@@ -22,6 +22,7 @@ function App() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [sets, setSets] = useState("");
+  const [excluded, setExcluded] = useState("");
 
   useEffect(() => {
     const categoriesRef = ref(db, "categories");
@@ -55,7 +56,8 @@ function App() {
 
   const handleAddSubCategory = async (
     categoryId,
-    parentSubCategoryId = null
+    parentSubCategoryId = null,
+    excluded = ""
   ) => {
     if (!newSubCategory || !subCategoryImage) {
       toast.error("Please fill in all fields for subcategory.");
@@ -83,9 +85,11 @@ function App() {
       name: newSubCategory,
       imageUrl,
       id: newSubCategoryId,
+      excluded,
     });
     setNewSubCategory("");
     setSubCategoryImage(null);
+    setExcluded("");
   };
 
   const handleAddService = (
@@ -204,13 +208,24 @@ function App() {
             required
           />
           <input
+            type="text"
+            placeholder="Excluded"
+            value={excluded}
+            onChange={(e) => setExcluded(e.target.value)}
+            required
+          />
+          <input
             type="file"
             onChange={(e) => handleFileChange(e, setSubCategoryImage)}
             required
           />
           <button
             onClick={() =>
-              handleAddSubCategory(selectedCategory, selectedSubCategory)
+              handleAddSubCategory(
+                selectedCategory,
+                selectedSubCategory,
+                excluded
+              )
             }
           >
             Add Subcategory
