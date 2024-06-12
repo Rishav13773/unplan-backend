@@ -20,7 +20,7 @@ function App() {
   const [categoryImage, setCategoryImage] = useState(null);
   const [subCategoryImage, setSubCategoryImage] = useState(null);
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState();
   const [sets, setSets] = useState("");
   const [excluded, setExcluded] = useState("");
 
@@ -241,7 +241,7 @@ function App() {
             onChange={(e) => setNewService(e.target.value)}
             required
           />
-          <input
+          <textarea
             type="text"
             placeholder="Description"
             value={description}
@@ -315,7 +315,7 @@ function App() {
                                     }
                                     required
                                   />
-                                  <input
+                                  <textarea
                                     type="text"
                                     placeholder="Description"
                                     value={description}
@@ -364,7 +364,7 @@ function App() {
                           onChange={(e) => setNewService(e.target.value)}
                           required
                         />
-                        <input
+                        <textarea
                           type="text"
                           placeholder="Description"
                           value={description}
@@ -405,7 +405,7 @@ function App() {
                 onChange={(e) => setNewService(e.target.value)}
                 required
               />
-              <input
+              <textarea
                 type="text"
                 placeholder="Description"
                 value={description}
