@@ -23,6 +23,8 @@ function App() {
   const [price, setPrice] = useState();
   const [sets, setSets] = useState("");
   const [excluded, setExcluded] = useState("");
+  const [categoryComingSoon, setCategoryComingSoon] = useState(false);
+  const [subCategoryComingSoon, setSubCategoryComingSoon] = useState(false);
 
   useEffect(() => {
     const categoriesRef = ref(db, "categories");
@@ -49,9 +51,15 @@ function App() {
       imageUrl = await getDownloadURL(imageRef);
     }
     const newCategoryId = uuid(); // Generating a timestamp-based ID
-    set(newCategoryRef, { name: newCategory, imageUrl, id: newCategoryId });
+    set(newCategoryRef, {
+      name: newCategory,
+      imageUrl,
+      id: newCategoryId,
+      comingSoon: categoryComingSoon,
+    });
     setNewCategory("");
     setCategoryImage(null);
+    setCategoryComingSoon(false);
   };
 
   const handleAddSubCategory = async (
@@ -86,10 +94,12 @@ function App() {
       imageUrl,
       id: newSubCategoryId,
       excluded,
+      comingSoon: subCategoryComingSoon,
     });
     setNewSubCategory("");
     setSubCategoryImage(null);
     setExcluded("");
+    setSubCategoryComingSoon(false);
   };
 
   const handleAddService = (
@@ -166,6 +176,14 @@ function App() {
           onChange={(e) => handleFileChange(e, setCategoryImage)}
           required
         />
+        <label>
+          <input
+            type="checkbox"
+            checked={categoryComingSoon}
+            onChange={(e) => setCategoryComingSoon(e.target.checked)}
+          />
+          Coming Soon
+        </label>
         <button onClick={handleAddCategory}>Add Category</button>
       </div>
       <div className="select-category">
@@ -219,6 +237,15 @@ function App() {
             onChange={(e) => handleFileChange(e, setSubCategoryImage)}
             required
           />
+          <label>
+            <input
+              type="checkbox"
+              checked={subCategoryComingSoon}
+              onChange={(e) => setSubCategoryComingSoon(e.target.checked)}
+            />
+            Coming Soon
+          </label>
+
           <button
             onClick={() =>
               handleAddSubCategory(

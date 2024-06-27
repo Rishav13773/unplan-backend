@@ -14,6 +14,7 @@ function Subcategory({ parentId }) {
   const [photo, setPhoto] = useState(null);
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [subCategoryComingSoon, setSubCategoryComingSoon] = useState(false);
 
   useEffect(() => {
     const subcategoriesRef = ref(db, `categories/${parentId}/subcategories`);
@@ -49,10 +50,12 @@ function Subcategory({ parentId }) {
     await set(newSubcategoryRef, {
       name: subcategoryName,
       photo: photoURL,
+      comingSoon: subCategoryComingSoon,
     });
 
     setSubcategoryName("");
     setPhoto(null);
+    setSubCategoryComingSoon(false);
   };
 
   const handleSubcategoryChange = (e) => {
@@ -79,6 +82,15 @@ function Subcategory({ parentId }) {
         placeholder="New Subcategory Name"
       />
       <input className="input" type="file" onChange={handlePhotoChange} />
+      <label>
+        <input
+          type="checkbox"
+          checked={subCategoryComingSoon}
+          onChange={(e) => setSubCategoryComingSoon(e.target.checked)}
+        />
+        Coming Soon
+      </label>
+
       <button className="button button-green" onClick={addSubcategory}>
         Add Subcategory
       </button>

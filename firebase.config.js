@@ -6,14 +6,14 @@ import { getStorage } from "firebase/storage";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDVjfpyf7KleqmLF4UKRQDn-VN0V013ZYo",
-  authDomain: "spotify-clone-development.firebaseapp.com",
+  apiKey: "AIzaSyB2ahz87V2kKAEx4U0MriEHG4SzEIAi0DY",
+  authDomain: "unplan-app-9d816.firebaseapp.com",
   databaseURL:
-    "https://spotify-clone-development-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "spotify-clone-development",
-  storageBucket: "spotify-clone-development.appspot.com",
-  messagingSenderId: "317876986408",
-  appId: "1:317876986408:web:27b1f53dac80e4dd8e4b1d",
+    "https://unplan-app-9d816-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "unplan-app-9d816",
+  storageBucket: "unplan-app-9d816.appspot.com",
+  messagingSenderId: "1031738212038",
+  appId: "1:1031738212038:web:f23470a0ac0c8f74c3a1c7",
 };
 
 // Initialize Firebase
